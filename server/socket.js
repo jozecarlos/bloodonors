@@ -15,8 +15,14 @@ class Socket {
       });
 
       socket.on('add:donor', (donor) => {
-        //DonorController.addDonor(donor);
         console.log(donor);
+        DonorController.addDonor(donor, (err, dn) => {
+          if (err) {
+            socket.emit('response:error', err);
+          } else {
+            socket.emit('response:add', { type: 'add:donors', data: dn });
+          }
+        });
       });
 
       socket.on('edit:donor', (donor) => {
@@ -40,8 +46,6 @@ class Socket {
         });
       });
 
-      socket.on('search:donor', (polygon) => {
-      });
     });
   }
 }

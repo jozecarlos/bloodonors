@@ -10,8 +10,6 @@ export default ({ body, title, initialState }) => {
           <meta charset="utf-8">
           <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
           <link rel="stylesheet" href="https://js.arcgis.com/4.3/esri/css/main.css">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.css">
           <link rel="stylesheet"
             href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
             integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Stack with React",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_ENV=test PORT=8080 MONGO_URL=mongodb://localhost:27017/bloodonors-test node_modules/.bin/nyc node node_modules/.bin/ava",
     "start": "cross-env BABEL_DISABLE_CACHE=1 NODE_ENV=development nodemon main.js"
   },
   "author": "José Carlos",
@@ -28,18 +28,20 @@
     "react": "^15.5.4",
     "react-addons-css-transition-group": "^15.5.2",
     "react-addons-transition-group": "^15.5.2",
+    "react-alert": "^1.0.14",
     "react-dom": "^15.1.0",
     "react-geolocated": "^1.0.3",
     "react-helmet": "^3.1.0",
     "react-modal-bootstrap": "^1.1.1",
+    "react-notify-toast": "^0.1.5",
     "react-router": "^2.4.1",
-    "react-toastr": "^2.8.2",
     "reactstrap": "^4.5.0",
     "sanitize-html": "^1.11.4",
     "socket.io": "^1.7.3",
     "socket.io-react": "^1.1.2"
   },
   "devDependencies": {
+    "ava": "^0.18.0",
     "babel-eslint": "^6.0.4",
     "babel-loader": "^6.2.4",
     "babel-plugin-webpack-loaders": "^0.7.0",
@@ -92,5 +94,38 @@
     "webpack-externals-plugin": "^1.0.0",
     "webpack-hot-middleware": "^2.10.0",
     "webpack-manifest-plugin": "^1.0.1"
+  },
+  "ava": {
+    "files": [
+      "client/**/*.spec.js",
+      "server/**/*.spec.js"
+    ],
+    "source": [
+      "client/**/*.js",
+      "server/**/*.js"
+    ],
+    "failFast": true,
+    "babel": "inherit",
+    "require": [
+      "./server/utils/setup-test-env.js"
+    ]
+  },
+  "nyc": {
+    "include": [
+      "client/**/*.js",
+      "server/**/*.js"
+    ],
+    "exclude": [
+      "**/*.spec.js",
+      "server/utils/setup-test-env.js",
+      "server/utils/test-helpers.js",
+      "server/config.js",
+      "server/seed.js"
+    ],
+    "reporter": [
+      "lcov",
+      "text",
+      "html"
+    ]
   }
 }

@@ -3,7 +3,7 @@ import * as DonorController from '../controllers/donor.controller';
 const router = new Router();
 
 // Get all Posts
-router.route('/donors').get(DonorController.getPosts);
+router.route('/donors').get(DonorController.getDonors);
 
 // Get one post by cuid
 router.route('/donors/:cuid').get(DonorController.getPost);

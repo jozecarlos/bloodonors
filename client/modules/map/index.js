@@ -78,6 +78,7 @@ class ArcGis extends React.PureComponent {
       var homeBtn = new Home({ view: view });
 
       var donorsLayer = new GraphicsLayer({ id: 'donors_layer'});
+      map.layers.add(donorsLayer);
 
       var markerSymbol = new SimpleMarkerSymbol({
         color: [226, 119, 40],
@@ -140,32 +141,38 @@ class ArcGis extends React.PureComponent {
 
        this.props.socket.on('response:points', evt => {
           if( evt.type === 'list:donors' && evt.data.length > 0){
-
-              evt.data.forEach(function (value) {
-
-                donorsLayer.add(new Graphic({
-                  geometry: new Point({
-                    longitude: value.location[0],
-                    latitude: value.location[1]
-                  }),
-                  symbol: markerSymbol,
-                  attributes: value,
-                  popupTemplate: { // autocasts as new PopupTemplate()
-                    title: "{firstName} {lastName}",
-                    content: [{ type: "fields",
-                      fieldInfos: [
-                        { fieldName: "bloodGroup"},
-                        {fieldName: "contactNumber"},
-                        {fieldName: "email"},
-                        {fieldName: "address"}]
-                     }]
-                  }
-                }));
-              });
-
-              map.layers.add(donorsLayer);
+              evt.data.forEach( (value) => {
+                 addMarker( value );
+               });
           }
        });
+
+       this.props.socket.on('response:add', evt => {
+          if( evt.type === 'add:donors' && evt.data !== undefined){
+            addMarker( evt.data );
+          }
+       });
+
+       function addMarker( donor ){
+         donorsLayer.add(new Graphic({
+           geometry: new Point({
+             longitude: donor.location[0],
+             latitude: donor.location[1]
+           }),
+           symbol: markerSymbol,
+           attributes: donor,
+           popupTemplate: { // autocasts as new PopupTemplate()
+             title: "{firstName} {lastName}",
+             content: [{ type: "fields",
+               fieldInfos: [
+                 { fieldName: "bloodGroup"},
+                 {fieldName: "contactNumber"},
+                 {fieldName: "email"},
+                 {fieldName: "address"}]
+              }]
+           }
+        }));
+       }
 
       view.then( () => {
          self._points = view.center;
@@ -202,6 +209,7 @@ class ArcGis extends React.PureComponent {
             <EsriLoader options={options} ready={this.createMap} />
             <div ref={node => this.mapContainer = node} className={style.map_view}></div>
             <Modal
+               socket={this.props.socket}
                onSubmit={this.onSubmit}
                isOpen={this.state.modalIsOpen }
                hideModal={this.hideModal} />

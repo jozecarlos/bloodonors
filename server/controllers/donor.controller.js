@@ -2,13 +2,13 @@ import Donor from '../models/donor';
 import cuid from 'cuid';
 
 /**
- * Get all posts
+ * Get all donors
  * @param req
  * @param res
  * @returns void
  */
-export function getPosts(req, res) {
-  Donor.find().sort('-dateAdded').exec((err, posts) => {
+export function getDonors(req, res) {
+  Donor.find().exec((err, posts) => {
     if (err) {
       res.status(500).send(err);
     }
@@ -40,13 +40,11 @@ export function near(loc, callback) {
  * @param obj
  * @returns void
  */
-export function addDonor(obj) {
+export function addDonor(obj, callback) {
   const newDonor = new Donor(obj);
   newDonor.cuid = cuid();
   newDonor.save((err) => {
-    if (err) {
-      console.log(err); // eslint-disable-line no-console
-    }
+    callback(err, newDonor);
   });
 }
 
