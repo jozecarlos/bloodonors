@@ -4,19 +4,14 @@ import { dojoRequire } from 'esri-loader';
 import style from './map.css';
 import {geolocated} from 'react-geolocated';
 import Modal from './form';
+import axios from 'axios';
 
 
 class ArcGis extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    this.state = { modalIsOpen: false, points: [] };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.points.length !== this.state.points.length) {
-      this.setState({ points: nextProps.points });
-    }
+    this.state = { modalIsOpen: false, coord: [] };
   }
 
   hideModal = () => {
@@ -26,12 +21,19 @@ class ArcGis extends React.PureComponent {
   };
 
   onSubmit = (donor) => {
-    this.props.onSubmit(donor);
+    self = this;
+    axios.get('//ipinfo.io/json')
+      .then( res => {
+        donor.ip = res.data.ip;
+        donor.location = this.state.coord;
+        self.props.onSubmit(donor);
+    });
   }
 
   createMap = () => {
 
     dojoRequire([
+        'dojo/dom-construct',
         'esri/Map',
         'esri/views/MapView',
         'esri/widgets/Search',
@@ -44,7 +46,9 @@ class ArcGis extends React.PureComponent {
         'esri/symbols/SimpleMarkerSymbol',
         'esri/Graphic',
         'esri/layers/GraphicsLayer',
+        'esri/core/watchUtils',
       ], (
+        domConstruct,
         Map,
         MapView,
         Search,
@@ -57,17 +61,18 @@ class ArcGis extends React.PureComponent {
         SimpleMarkerSymbol,
         Graphic,
         GraphicsLayer,
+        watchUtils,
       ) => {
 
       var self = this;
 
-      var map = new Map({ basemap: 'topo'});
+      var map = new Map({ basemap: 'dark-gray'});
 
       var view = new MapView({
         container: this.mapContainer,
         map: map,
         center: [this.props.coords.longitude, this.props.coords.latitude],
-        zoom: 14
+        zoom: 8
       });
 
       var homeBtn = new Home({ view: view });
@@ -95,21 +100,22 @@ class ArcGis extends React.PureComponent {
           },
           popupTemplate: {
               title: "{PlaceName}",
-              content: "State: {Region}",
+              content: "To ensure the safety of blood donation for both donors and recipients,"+
+              "all volunteer blood donors must register yourself in this app, clicking in the button below.",
               overwriteActions: true,
               actions: [{
-                title: "Zoom out",
-                id: "zoom-out",
+                title: "Become a Donor",
+                id: "donor-bt",
               }]
           },
-          placeholder: "Yeahh porra",
+          placeholder: "Find a Andress",
           maxResults: 3,
           outFields: ["*"],
           maxSuggestions: 6,
           suggestionsEnabled: false,
           minSuggestCharacters: 0,
           resultSymbol: new PictureMarkerSymbol({
-            url: "images/heart.png",
+            url: "images/marker.png",
             height: 36,
             width: 36
           })}]
@@ -119,16 +125,22 @@ class ArcGis extends React.PureComponent {
        view.ui.add(searchWidget, { position: "top-right", index: 0 });
 
        view.popup.on("trigger-action", function(evt){
-          if(evt.action.id === "zoom-out"){
-            self.setState( { modalIsOpen: true } );
+          if(evt.action.id === "donor-bt"){
+            self.setState({
+                modalIsOpen: true,
+                coord: [
+                  evt.detail.widget.location.longitude,
+                  evt.detail.widget.location.latitude
+                ]
+             });
             console.log(evt);
             console.log( evt.detail.widget.location.latitude);
           }
        });
 
        this.props.socket.on('response:points', evt => {
-         console.log( evt );
           if( evt.type === 'list:donors' && evt.data.length > 0){
+
               evt.data.forEach(function (value) {
 
                 donorsLayer.add(new Graphic({
@@ -155,16 +167,19 @@ class ArcGis extends React.PureComponent {
           }
        });
 
-      view.on("pointer-up", function(evt) {
-        if(evt.action === 'end'){
-
-        }
-       console.log(evt);
-      });
-
       view.then( () => {
-         self.props.onLoad({ loc: [this.props.coords.longitude, this.props.coords.latitude]});
-      }, function(error){
+         self._points = view.center;
+         this.props.socket.emit('list:donor', [this.props.coords.longitude, this.props.coords.latitude]);
+         watchUtils.whenTrue(view, "stationary", () => {
+             if(view.center){
+                if(view.center.longitude !== self._points.longitude && view.center.latitude !== self._points.latitude){
+                   var loc = [view.center.longitude, view.center.latitude];
+                   this.props.socket.emit('list:donor', loc);
+                }
+             }
+         });
+      },
+      (error) =>{
         console.log("The map view resources failed to load: ", error);
       });
 
@@ -191,7 +206,7 @@ class ArcGis extends React.PureComponent {
                isOpen={this.state.modalIsOpen }
                hideModal={this.hideModal} />
           </div>
-          : <div>Loading..</div>
+          : <div className={style.wrapper}><div className={style.loader}></div></div>
     );
   }
 }

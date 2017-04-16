@@ -15,7 +15,7 @@ class Socket {
       });
 
       socket.on('add:donor', (donor) => {
-        DonorController.addDonor(donor);
+        //DonorController.addDonor(donor);
         console.log(donor);
       });
 
