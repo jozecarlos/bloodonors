@@ -63,43 +63,50 @@ export default class Form extends Component {
             <ModalClose onClick={this.hideModal} />
           </ModalHeader>
           <ModalBody>
-            <div className={"row"}>
-              <div className="col-md-6 form-group">
-                <div className="form-group">
-                  <label htmlFor="firstName">First Name:</label>
-                  <input type="text" className="form-control" id="firstName"
-                    value={this.state.donor.firstName}  onChange={this.handleChange} />
+              <div className={"row"}>
+                <div className="col-md-6 form-group">
+                  <div className="form-group">
+                    <label htmlFor="firstName">First Name:</label>
+                    <input type="text" className="form-control" id="firstName"
+                      value={this.state.donor.firstName}  onChange={this.handleChange} />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="lastName">Last Name:</label>
+                    <input type="text" className="form-control"
+                    id="lastName" onChange={this.handleChange}
+                    value={this.state.donor.lastName} />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="email">Email address:</label>
+                    <input type="email" className="form-control" id="email"
+                    onChange={this.handleChange} value={this.state.donor.email} />
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label htmlFor="lastName">Last Name:</label>
-                  <input type="text" className="form-control"
-                  id="lastName" onChange={this.handleChange}
-                  value={this.state.donor.lastName} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="email">Email address:</label>
-                  <input type="email" className="form-control" id="email"
-                  onChange={this.handleChange} value={this.state.donor.email} />
+                <div className="col-md-6 form-group">
+                  <div className="form-group">
+                    <label htmlFor="contactNumber">Contact Number:</label>
+                    <input type="text" className="form-control" id="contactNumber"
+                    onChange={this.handleChange} value={this.state.donor.contactNumber} />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="address">Address:</label>
+                    <input type="text" className="form-control" id="address"
+                    onChange={this.handleChange} value={this.state.donor.address} />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="bloodGroup">Blood Group:</label>
+                    <select
+                        onChange={this.handleChange}
+                        value={this.state.donor.bloodGroup}
+                        className="form-control" id="bloodGroup">
+                         <option value="A">A</option>
+                         <option value="B">B</option>
+                         <option value="AB">AB</option>
+                         <option value="AB">O</option>
+                     </select>
+                  </div>
                 </div>
               </div>
-              <div className="col-md-6 form-group">
-                <div className="form-group">
-                  <label htmlFor="contactNumber">Contact Number:</label>
-                  <input type="text" className="form-control" id="contactNumber"
-                  onChange={this.handleChange} value={this.state.donor.contactNumber} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="address">Address:</label>
-                  <input type="text" className="form-control" id="address"
-                  onChange={this.handleChange} value={this.state.donor.address} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="bloodGroup">Blood Group:</label>
-                  <input type="text" className="form-control" id="bloodGroup"
-                  onChange={this.handleChange} value={this.state.donor.bloodGroup} />
-                </div>
-              </div>
-            </div>
           </ModalBody>
           <ModalFooter>
             <button className="btn btn-default" onClick={this.hideModal}>
@@ -107,9 +114,6 @@ export default class Form extends Component {
             </button>
             <button className="btn btn-primary" onClick={this.onSubmit}>
               Save
-            </button>
-            <button className="btn btn-primary" onClick={this.showAlert}>
-              Alert
             </button>
           </ModalFooter>
       </Modal>);
