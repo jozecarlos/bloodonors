@@ -5,13 +5,13 @@ const router = new Router();
 // Get all Posts
 router.route('/donors').get(DonorController.getDonors);
 
-// Get one post by cuid
+// Get one donor by cuid
 router.route('/donors/:cuid').get(DonorController.getPost);
 
-// Add a new Post
+// Add a new Donor
 router.route('/donors').post(DonorController.addDonor);
 
-// Delete a post by cuid
-router.route('/donors/:cuid').delete(DonorController.deletePost);
+// Delete a donor by cuid
+router.route('/donors/:cuid').delete(DonorController.deleteDonor);
 
 export default router;

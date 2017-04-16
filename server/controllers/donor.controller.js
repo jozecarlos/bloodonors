@@ -64,19 +64,15 @@ export function getPost(req, res) {
 }
 
 /**
- * Delete a post
- * @param req
- * @param res
+ * Delete a donor
+ * @param donor
+ * @param callback function
  * @returns void
  */
-export function deletePost(req, res) {
-  Donor.findOne({ cuid: req.params.cuid }).exec((err, post) => {
-    if (err) {
-      res.status(500).send(err);
-    }
-
-    post.remove(() => {
-      res.status(200).end();
+export function deleteDonor(dn, callback) {
+  Donor.findOne({ cuid: dn.cuid }).exec((err, donor) => {
+    donor.remove(() => {
+      callback(err, true);
     });
   });
 }

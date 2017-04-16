@@ -7,6 +7,7 @@ import {
   ModalBody,
   ModalFooter,
 } from 'react-modal-bootstrap';
+import axios from 'axios';
 
 export default class Form extends Component {
 
@@ -28,7 +29,7 @@ export default class Form extends Component {
   componentDidMount() {
     const self = this;
     this.props.socket.on('response:add', evt => {
-      if (evt.type === 'add:donors' && evt.data !== undefined) {
+      if (evt.type === 'add:donors') {
         self.hideModal();
       }
     });
@@ -39,7 +40,6 @@ export default class Form extends Component {
       this.setState({ isOpen: nextProps.isOpen });
     }
   }
-
 
   onSubmit = () => {
     this.props.onSubmit(this.state.donor);

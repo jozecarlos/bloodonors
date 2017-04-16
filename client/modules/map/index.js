@@ -5,29 +5,31 @@ import style from './map.css';
 import {geolocated} from 'react-geolocated';
 import Modal from './form';
 import axios from 'axios';
+import Panel from './panel';
+import ReactDOM from 'react-dom'
 
 
 class ArcGis extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    this.state = { modalIsOpen: false, coord: [] };
+    this.state = { modalIsOpen: false, coord: [], places: [] };
   }
 
   hideModal = () => {
+    console.log('hidding modal');
     this.setState({
       modalIsOpen: false,
     });
   };
 
-  onSubmit = (donor) => {
-    self = this;
+  onSubmit = ( donor ) => {
     axios.get('//ipinfo.io/json')
-      .then( res => {
+      .then(res => {
         donor.ip = res.data.ip;
         donor.location = this.state.coord;
-        self.props.onSubmit(donor);
-    });
+        this.props.socket.emit('add:donor', donor);
+      });
   }
 
   createMap = () => {
@@ -72,7 +74,8 @@ class ArcGis extends React.PureComponent {
         container: this.mapContainer,
         map: map,
         center: [this.props.coords.longitude, this.props.coords.latitude],
-        zoom: 8
+        zoom: 8,
+
       });
 
       var homeBtn = new Home({ view: view });
@@ -121,6 +124,12 @@ class ArcGis extends React.PureComponent {
        view.ui.add(homeBtn, "top-left");
        view.ui.add(searchWidget, { position: "top-right", index: 0 });
 
+       var node = document.createElement("div");
+       view.ui.add(node, "top-right");
+       ReactDOM.render(
+              <Panel view={view} places={this.state.places}
+                socket={this.props.socket}/>, node);
+
        view.popup.on("trigger-action", function(evt){
           if(evt.action.id === "donor-bt"){
             self.setState({
@@ -130,26 +139,51 @@ class ArcGis extends React.PureComponent {
                   evt.detail.widget.location.latitude
                 ]
              });
+          }
+          if(evt.action.id === "donor-bt-edit"){
+            console.log('editing...');
             console.log(evt);
-            console.log( evt.detail.widget.location.latitude);
+          }
+          if(evt.action.id === "donor-bt-delete"){
+            console.log('deleting..');
+            console.log(evt);
           }
        });
 
        this.props.socket.on('response:points', evt => {
           if( evt.type === 'list:donors' && evt.data.length > 0){
               evt.data.forEach( (value) => {
-                 addMarker( value );
+                 addMarker( value, {
+                   title: "{firstName} {lastName}",
+                   content: [{ type: "fields",
+                     fieldInfos: [
+                       { fieldName: "bloodGroup"},
+                       {fieldName: "contactNumber"},
+                       {fieldName: "email"},
+                       {fieldName: "address"}]
+                    }]
+                 } );
                });
           }
        });
 
        this.props.socket.on('response:add', evt => {
           if( evt.type === 'add:donors' && evt.data !== undefined){
-            addMarker( evt.data );
+            searchWidget.clear();
+            addMarker( evt.data, {
+              title: "{firstName} {lastName}",
+              content: [{ type: "fields",
+                fieldInfos: [
+                  { fieldName: "bloodGroup"},
+                  {fieldName: "contactNumber"},
+                  {fieldName: "email"},
+                  {fieldName: "address"}]
+               }]
+            });
           }
        });
 
-       function addMarker( donor ){
+       function addMarker( donor, template ){
          donorsLayer.add(new Graphic({
            geometry: new Point({
              longitude: donor.location[0],
@@ -157,16 +191,7 @@ class ArcGis extends React.PureComponent {
            }),
            symbol: markerSymbol,
            attributes: donor,
-           popupTemplate: { // autocasts as new PopupTemplate()
-             title: "{firstName} {lastName}",
-             content: [{ type: "fields",
-               fieldInfos: [
-                 { fieldName: "bloodGroup"},
-                 {fieldName: "contactNumber"},
-                 {fieldName: "email"},
-                 {fieldName: "address"}]
-              }]
-           }
+           popupTemplate: template,
         }));
        }
 
@@ -205,8 +230,8 @@ class ArcGis extends React.PureComponent {
             <EsriLoader options={options} ready={this.createMap} />
             <div ref={node => this.mapContainer = node} className={style.map_view}></div>
             <Modal
-               socket={this.props.socket}
                onSubmit={this.onSubmit}
+               socket={this.props.socket}
                isOpen={this.state.modalIsOpen }
                hideModal={this.hideModal} />
           </div>

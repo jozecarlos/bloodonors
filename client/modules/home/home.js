@@ -19,11 +19,10 @@ class Home extends Component {
         self.showAlert();
       }
     });
-  }
 
-
-  saveDonor = (donor) => {
-    this.props.socket.emit('add:donor', donor);
+    this.props.socket.on('response:error', err => {
+      console.log(err);
+    });
   }
 
   showAlert =() => {
@@ -49,7 +48,7 @@ class Home extends Component {
         </div>
         <div className={style.container}>
           <div className={style.content}>
-            <ArcGis onSubmit={this.saveDonor} socket={this.props.socket} />
+            <ArcGis socket={this.props.socket} />
           </div>
         </div>
         <div className={style.footer_container}>
