@@ -8,8 +8,6 @@ import {
   ModalFooter,
 } from 'react-modal-bootstrap';
 
-import Notifications, { notify } from 'react-notify-toast';
-
 export default class Form extends Component {
 
   constructor(props) {
@@ -25,15 +23,12 @@ export default class Form extends Component {
         bloodGroup: '',
       },
     };
-
-    this.show = notify.createShowQueue();
   }
 
   componentDidMount() {
     const self = this;
     this.props.socket.on('response:add', evt => {
       if (evt.type === 'add:donors' && evt.data !== undefined) {
-        self.showAlert();
         self.hideModal();
       }
     });
@@ -54,11 +49,6 @@ export default class Form extends Component {
     this.props.hideModal();
   };
 
-  showAlert =() => {
-    const myColor = { background: '#0E1717', text: '#FFFFFF' };
-    this.show('this is sample text', 'success', 5000, myColor);
-  }
-
   handleChange = ({ target }) => {
     const donor = this.state.donor;
     donor[target.id] = target.value;
@@ -67,10 +57,7 @@ export default class Form extends Component {
 
   render() {
     return (
-      <div>
-
         <Modal isOpen={this.state.isOpen} onRequestHide={this.hideModal}>
-          <Notifications />
           <ModalHeader>
             <ModalTitle>Save a life, Give Blood</ModalTitle>
             <ModalClose onClick={this.hideModal} />
@@ -125,8 +112,7 @@ export default class Form extends Component {
               Alert
             </button>
           </ModalFooter>
-      </Modal>
-    </div>);
+      </Modal>);
   }
 
 }

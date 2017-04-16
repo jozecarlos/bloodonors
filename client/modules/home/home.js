@@ -2,20 +2,38 @@ import React, { Component } from 'react';
 import ArcGis from '../map/';
 import style from '../../styles/main.css';
 import { socketConnect } from 'socket.io-react';
+import Notifications, { notify } from 'react-notify-toast';
 
 class Home extends Component {
 
   constructor(props, context) {
     super(props, context);
+    this.show = notify.createShowQueue();
   }
 
-  saveDonor = (donor ) => {
+
+  componentDidMount() {
+    const self = this;
+    this.props.socket.on('response:add', evt => {
+      if (evt.type === 'add:donors' && evt.data !== undefined) {
+        self.showAlert();
+      }
+    });
+  }
+
+
+  saveDonor = (donor) => {
     this.props.socket.emit('add:donor', donor);
+  }
+
+  showAlert =() => {
+    this.show('Congratulations, You are now a volunteer blood donors', 'success', 5000, { background: '#0E1717', text: '#FFFFFF' });
   }
 
   render() {
     return (
       <div>
+        <Notifications />
         <div className={style.header_container}>
           <div className={style.header}>
             <div className={style.alignleft}>

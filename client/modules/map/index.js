@@ -113,13 +113,9 @@ class ArcGis extends React.PureComponent {
           maxResults: 3,
           outFields: ["*"],
           maxSuggestions: 6,
-          suggestionsEnabled: false,
+          suggestionsEnabled: true,
           minSuggestCharacters: 0,
-          resultSymbol: new PictureMarkerSymbol({
-            url: "images/marker.png",
-            height: 36,
-            width: 36
-          })}]
+          }]
         });
 
        view.ui.add(homeBtn, "top-left");
